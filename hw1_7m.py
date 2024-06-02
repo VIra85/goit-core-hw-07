@@ -40,7 +40,8 @@ class AddressBook(UserDict):
 
     def add_contact(self, name, birthday):
         try:
-            self.data[name] = {"birthday": string_to_date(birthday)}
+            self.data[name] = Record(name)
+            self.data[name].add_birthday(birthday)
         except ValueError:
             return "Invalid date format. Use YYYY.MM.DD"
 
@@ -77,18 +78,19 @@ class AddressBook(UserDict):
             return False
 
     def get_birthday(self, name):
-        if name in self.data and "birthday" in self.data[name]:
-            return self.data[name]["birthday"]
+        record = self.data.get(name)
+        if record and record.birthday:
+            return record.birthday
         return None
 
     def show_all_contacts(self):
         if not self.data:
             return "No contacts available."
         result = "All contacts:\n"
-        for name, info in self.data.items():
-            phones = ", ".join(info.get("phones", []))
-            birthday = info.get("birthday", "").strftime("%Y.%m.%d") if "birthday" in info else "N/A"
-            result += f"Name: {name}, Phones: {phones}, Birthday: {birthday}\n"
+        for record in self.data.values():
+            phones = ", ".join(record.phones)
+            birthday = record.birthday.strftime("%Y.%m.%d") if record.birthday else "N/A"
+            result += f"Name: {record.name.value}, Phones: {phones}, Birthday: {birthday}\n"
         return result
 
 class Record:
